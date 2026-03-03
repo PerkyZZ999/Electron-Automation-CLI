@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { connectCdp } from "../core/cdp";
 import { EXIT_CODE, fail } from "../utils/logger";
@@ -57,7 +58,7 @@ export function registerGetTreeCommand(program: Command): void {
 				await client.detach();
 				const stateDir = await ensureStateDir();
 				const treePath = resolve(stateDir, "tree.txt");
-				await Bun.write(treePath, `${JSON.stringify(tree, null, 2)}\n`);
+				await writeFile(treePath, `${JSON.stringify(tree, null, 2)}\n`, "utf8");
 
 				console.log(treePath);
 				await browser.close();

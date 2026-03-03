@@ -33,6 +33,11 @@ This folder is the canonical source of truth for `Electron-Automation-CLI`.
    - `../.skills/playwright-electron-cli/references/*.md`
    - Defines AI-facing operational workflows, command-family usage, and task-specific guidance.
 
+8. **Operational Guides**
+   - `../UserGuide.md`
+   - `../AgentGuide.md`
+   - Practical setup/runbooks for humans and autonomous agents, including OOB Electron app onboarding.
+
 ## Precedence Rules
 
 When there is a conflict between documentation files, resolve using this order:

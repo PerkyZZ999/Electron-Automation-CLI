@@ -8,6 +8,14 @@ Token-efficient CLI for automating Electron apps with Playwright.
 bun install
 ```
 
+Ensure Node is available (`node --version`), because default `launch` reliability mode uses a Node helper.
+
+## Guides
+
+- User runbook: `UserGuide.md`
+- Agent runbook: `AgentGuide.md`
+- Documentation index: `docs/README.md`
+
 For Linux distributions that are not officially supported by Playwright dependency installers (for example Arch), install system libraries with your distro package manager, then install browser binaries:
 
 ```bash

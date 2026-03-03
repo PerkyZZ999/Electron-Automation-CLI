@@ -12,8 +12,16 @@ coverage
 
 # logs
 logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+*.log
+report.*.json
+
+# local runtime/session artifacts
+.electron-session.json
+.state/*
+!.state/.gitkeep
+
+# local Electron probe fixtures
+test/.electron*/
 
 # dotenv environment variable files
 .env

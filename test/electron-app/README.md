@@ -1,15 +1,24 @@
 # electron-app
 
-To install dependencies:
+Fresh Electron app scaffolded with Bun.
+
+## Setup
 
 ```bash
+bun init
+bun install electron --save-dev
 bun install
 ```
 
-To run:
+## Run
 
 ```bash
-bun run index.ts
+bun run start
 ```
 
-This project was created using `bun init` in bun v1.3.10. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Files
+
+- `main.js` - Electron main process and window lifecycle
+- `preload.js` - safe renderer bridge (`window.appApi.ping`)
+- `index.html` - mock testing UI with stable selectors
+- `renderer.js` - deterministic interaction logic for automation

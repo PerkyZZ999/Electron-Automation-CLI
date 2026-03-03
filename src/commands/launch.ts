@@ -1,4 +1,6 @@
 import { spawn, spawnSync } from "node:child_process";
+import { access } from "node:fs/promises";
+import { resolve } from "node:path";
 import type { Command } from "commander";
 import { launchElectron } from "../core/launcher";
 import { EXIT_CODE, fail, logInfo } from "../utils/logger";
@@ -50,6 +52,78 @@ async function runUnderXvfb(): Promise<number> {
 	});
 }
 
+function shouldUseNodeLaunchFallback(): boolean {
+	return process.env.ECLI_DISABLE_NODE_LAUNCH !== "1";
+}
+
+async function launchViaNodeHelper(
+	appPath: string,
+	options: LaunchCommandOptions,
+): Promise<string> {
+	const helperPath = resolve(
+		process.cwd(),
+		"scripts",
+		"node-electron-launch.cjs",
+	);
+	await access(helperPath);
+
+	return await new Promise<string>((resolvePromise, rejectPromise) => {
+		const args = [helperPath, appPath];
+		if (options.headless) {
+			args.push("--headless");
+		}
+
+		const child = spawn("node", args, {
+			detached: true,
+			stdio: ["ignore", "pipe", "pipe"],
+			env: {
+				...process.env,
+			},
+		});
+
+		let stdout = "";
+		let stderr = "";
+		let settled = false;
+
+		child.stdout.on("data", (chunk) => {
+			stdout += chunk.toString("utf8");
+			if (settled) {
+				return;
+			}
+
+			const sessionPath = stdout
+				.split("\n")
+				.map((line) => line.trim())
+				.filter((line) => line.length > 0)
+				.at(-1);
+
+			if (sessionPath) {
+				settled = true;
+				child.unref();
+				resolvePromise(sessionPath);
+			}
+		});
+
+		child.stderr.on("data", (chunk) => {
+			stderr += chunk.toString("utf8");
+		});
+
+		child.once("error", rejectPromise);
+		child.once("exit", (code) => {
+			if (settled) {
+				return;
+			}
+
+			const message =
+				stderr.trim() ||
+				stdout.trim() ||
+				`Node launch helper failed with exit code ${code ?? "unknown"}.`;
+			settled = true;
+			rejectPromise(new Error(message));
+		});
+	});
+}
+
 export function registerLaunchCommand(program: Command): void {
 	program
 		.command("launch")
@@ -74,6 +148,13 @@ export function registerLaunchCommand(program: Command): void {
 					}
 
 					await clearSessionState();
+				}
+
+				if (shouldUseNodeLaunchFallback()) {
+					const sessionPath = await launchViaNodeHelper(appPath, options);
+					logInfo(`Session created: ${sessionPath}`);
+					process.exit(EXIT_CODE.SUCCESS);
+					return;
 				}
 
 				const session = await launchElectron({

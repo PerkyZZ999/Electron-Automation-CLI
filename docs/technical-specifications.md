@@ -4,7 +4,7 @@
 *   **Runtime/Package Manager:** Bun (for native TypeScript execution, ultra-fast CLI startup, and efficient module resolution). [browserstack](https://www.browserstack.com/guide/bun-playwright)
 *   **Automation Engine:** `playwright` (specifically `require('playwright')._electron`). [stephenhaney](https://stephenhaney.com/2024/playwright-on-fly-io-with-bun/)
 *   **CLI Framework (v1 decision):** `commander.js` for structured subcommands and predictable help output.
-*   **File System:** Native Bun APIs (`Bun.file()`, `Bun.write()`) for persistent state and logging.
+*   **File System:** Node `fs/promises` for runtime-portable state and artifact writes across Bun/Node execution paths.
 *   **Observability:** `evlog` with local drain pipeline (`.state/logs/*.jsonl`) for structured event telemetry.
 
 ### 2. System Architecture
@@ -24,8 +24,13 @@ When `e-cli launch` is executed, the CLI will:
 ```
 *Note: Subsequent commands will use Playwright's `chromium.connectOverCDP(wsEndpoint)` to attach to the running renderer.*
 
+Current reliability behavior:
+
+* `launch` defaults to a detached Node helper path (`scripts/node-electron-launch.cjs`) for cross-runtime stability.
+* Disable this fallback only when needed via `ECLI_DISABLE_NODE_LAUNCH=1`.
+
 #### 2.2 Core CLI Commands
-*   `e-cli launch <appPath>`: Initializes app, writes `.electron-session.json`. (On Linux, automatically wraps the call in `xvfb-run -a` if `DISPLAY` is not set or `--headless` is passed).
+*   `e-cli launch <appPath>`: Initializes app, writes `.electron-session.json`. Uses Node helper fallback by default. On Linux, automatically wraps the call in `xvfb-run -a` if `DISPLAY` is not set or `--headless` is passed.
 *   `e-cli close`: Kills the process ID stored in session state.
 *   `e-cli get-tree [windowIndex]`: Extracts the accessibility tree, saves to `.state/tree.txt`, outputs file path only.
 *   `e-cli click <selector> [windowIndex]`: Connects via CDP, clicks the element, triggers an automatic screenshot to `.state/last-action.png`.
@@ -58,14 +63,29 @@ Privileged command policy:
 
 *   `eval-main` and `run-code` require explicit opt-in via `--allow-unsafe` or `ECLI_ALLOW_UNSAFE=1`.
 
-#### 2.4 CLI Output Contract (Normative)
+#### 2.4 OOB Electron App Compatibility Profile
+
+For out-of-the-box automation of external/local Electron apps:
+
+* Pass a valid local Electron app entry path or app directory to `e-cli launch <appPath>`.
+* Ensure at least one renderer window is created by the app before automation actions.
+* Prefer deterministic selectors (`id`, stable `data-*` attributes) to reduce flaky locator lookups.
+* On Linux headless environments, install `xvfb-run` (`xorg-server-xvfb`) and allow the built-in wrapper behavior.
+* Ensure `node` is available on `PATH` because default launch reliability mode uses the Node helper.
+
+Known trade-off in current compatibility mode:
+
+* Sessions launched through the Node helper prioritize renderer/CDP stability and may not include the main-process eval bridge (`mainSocketPath`).
+* If `eval-main` is required in your environment, relaunch with `ECLI_DISABLE_NODE_LAUNCH=1` and validate that direct launch remains stable.
+
+#### 2.5 CLI Output Contract (Normative)
 *   Heavy output commands return file paths rather than raw payloads.
 *   `e-cli get-tree` prints only the generated text file path on success.
 *   `e-cli click` and `e-cli fill` print concise success text plus `.state/last-action.png` path.
 *   Errors are single-line, actionable, and should include recovery instructions when possible.
 *   `doctor --json` returns a machine-readable check array and exits non-zero when failures exist.
 
-#### 2.5 Observability Pipeline
+#### 2.6 Observability Pipeline
 
 Telemetry is emitted through Evlog and drained locally:
 
@@ -88,18 +108,16 @@ bunx playwright install-deps # Crucial for Arch Linux Chromium dependencies
 #### 3.2 Linux/Arch Headless Wrapper Logic
 To ensure 100% Linux compatibility without popping up windows on the KDE desktop, the launch command must detect the environment:
 ```typescript
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
-function launchHeadless(appPath: string) {
+function rerunWithXvfb() {
     const isLinux = process.platform === 'linux';
-    const launchArgs = [appPath];
-    
-    if (isLinux) {
-        // Prepend xvfb-run for virtual framebuffer
-        console.log('Linux detected: wrapping in xvfb-run');
-        return spawn('xvfb-run', ['-a', 'bun', 'run', 'internal-launch.ts', ...launchArgs]);
-    }
-    // ... normal launch
+    if (!isLinux) return;
+
+    spawn('xvfb-run', ['-a', process.execPath, ...process.argv.slice(1)], {
+        stdio: 'inherit',
+        env: { ...process.env, ECLI_XVFB_ACTIVE: '1' },
+    });
 }
 ```
 

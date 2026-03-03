@@ -95,9 +95,20 @@ async function startMainEvalBridge(
 		}
 	).evaluate(
 		async ({ evalSocketPath }: { evalSocketPath: string }) => {
-			const fs = require("node:fs");
-			const net = require("node:net");
-			const vm = require("node:vm");
+			const requireNode = globalThis.process?.mainModule?.require?.bind(
+				globalThis.process.mainModule,
+			) as ((id: string) => unknown) | undefined;
+
+			if (!requireNode) {
+				throw new Error(
+					"Unable to resolve Node require in main-process bridge.",
+				);
+			}
+			const fs = requireNode("node:fs") as {
+				unlinkSync: (path: string) => void;
+			};
+			const net = requireNode("node:net") as typeof import("node:net");
+			const vm = requireNode("node:vm") as typeof import("node:vm");
 			const globalStore = globalThis as Record<string, unknown>;
 			type MainBridge = { server: unknown; socketPath: string };
 			const existingBridge = globalStore.__eCliMainEvalBridge as

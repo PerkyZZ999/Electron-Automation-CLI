@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { Command } from "commander";
 import { EXIT_CODE, fail, logInfo } from "../utils/logger";
@@ -475,7 +475,7 @@ export function registerExpandedCommands(program: Command): void {
 						"### Snapshot",
 						JSON.stringify(tree, null, 2),
 					].join("\n");
-					await Bun.write(outputPath, `${content}\n`);
+					await writeFile(outputPath, `${content}\n`, "utf8");
 					console.log(outputPath);
 				});
 			} catch (error) {
