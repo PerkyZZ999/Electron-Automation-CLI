@@ -14,6 +14,7 @@ Ensure Node is available (`node --version`), because default `launch` reliabilit
 
 - User runbook: `UserGuide.md`
 - Agent runbook: `AgentGuide.md`
+- Command reference: `Commands.md`
 - Documentation index: `docs/README.md`
 
 For Linux distributions that are not officially supported by Playwright dependency installers (for example Arch), install system libraries with your distro package manager, then install browser binaries:
