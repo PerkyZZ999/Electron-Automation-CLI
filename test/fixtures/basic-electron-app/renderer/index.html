@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Electron Fixture</title>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+				margin: 24px;
+			}
+
+			main {
+				display: grid;
+				gap: 12px;
+				max-width: 560px;
+			}
+
+			label {
+				display: grid;
+				gap: 4px;
+			}
+
+			button {
+				padding: 8px 12px;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1 id="title">Electron Fixture</h1>
+			<label>
+				<span>Name</span>
+				<input id="name" placeholder="Your name" />
+			</label>
+			<label>
+				<span>Role</span>
+				<select id="role">
+					<option value="tester">Tester</option>
+					<option value="developer">Developer</option>
+				</select>
+			</label>
+			<label>
+				<input id="agree" type="checkbox" />
+				<span>Agree to terms</span>
+			</label>
+			<button id="submit-btn" type="button">Submit</button>
+			<p id="status">Idle</p>
+		</main>
+		<script src="./renderer.js"></script>
+	</body>
+</html>

@@ -1,0 +1,6 @@
+{
+	"name": "basic-electron-app-fixture",
+	"private": true,
+	"type": "commonjs",
+	"main": "main.js"
+}

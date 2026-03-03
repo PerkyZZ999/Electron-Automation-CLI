@@ -1,0 +1,28 @@
+{
+	"name": "electron-automation-cli",
+	"version": "0.1.0",
+	"description": "Token-efficient CLI for Electron automation via Playwright",
+	"module": "src/cli.ts",
+	"bin": {
+		"e-cli": "src/cli.ts"
+	},
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun run src/cli.ts",
+		"build": "bun build src/cli.ts --target=bun --outdir dist --external playwright --external electron",
+		"test": "bun test",
+		"test:e2e": "ECLI_RUN_E2E=1 bun test --timeout 90000 test/cli.e2e.test.ts"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.3.10",
+		"@types/node": "^25.3.3",
+		"electron": "^40.6.1",
+		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"commander": "^14.0.3",
+		"evlog": "^2.1.0",
+		"playwright": "^1.58.2"
+	}
+}
