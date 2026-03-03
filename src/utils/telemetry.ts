@@ -85,7 +85,6 @@ export function initTelemetry(): void {
 	}
 
 	initLogger({
-		console: false,
 		env: {
 			service: "electron-automation-cli",
 			environment: resolveEnvironment(),

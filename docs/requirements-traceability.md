@@ -14,6 +14,8 @@ This matrix maps product requirements from `prd.md` to technical rules and imple
 | R6 | Reliable recovery on stale/crashed sessions | Standardized actionable errors for stale `wsEndpoint`/PID | Phase 9 (Hardening) | Simulate app crash and verify guided relaunch error |
 | R7 | Broad command surface for agent-driven E2E automation | Playwright-CLI-inspired command families adapted for Electron renderer/main contexts | Phase 7 (Command Surface Expansion) | Execute representative workflows across navigation, interaction, storage, diagnostics, and artifact commands |
 | R8 | High-quality, scalable AI skill package | Frontmatter-based `SKILL.md` + task-specific references under `.skills/playwright-electron-cli/references/` with drift-control updates | Phase 6, Phase 6B | Verify skill quickstart/command matrix/reference links and consistency with `cli-contract.md` |
+| R9 | Local production readiness without CI dependency | Local distribution scripts (`build:binary`, `install:local`, `smoke:prod`) plus `doctor` preflight checks | Phase 8, Phase 9 | Build binary, run `e-cli doctor --json`, verify non-zero exit on failing checks |
+| R10 | Structured observability and safer privileged execution | Evlog telemetry drain to `.state/logs/*.jsonl`; explicit unsafe opt-in for `eval-main`/`run-code` | Phase 9 (Hardening) | Verify logs emitted via `logs`; verify unsafe commands fail without opt-in and pass with opt-in |
 
 ## Additional Source-of-Truth Notes
 

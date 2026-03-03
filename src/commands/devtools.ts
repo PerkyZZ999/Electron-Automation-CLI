@@ -17,6 +17,14 @@ interface RouteOptions {
 	action?: RouteAction;
 }
 
+interface UnsafeOptions {
+	allowUnsafe?: boolean;
+}
+
+function hasUnsafePermission(options?: UnsafeOptions): boolean {
+	return options?.allowUnsafe === true || process.env.ECLI_ALLOW_UNSAFE === "1";
+}
+
 function handleError(error: unknown, fallbackMessage: string): void {
 	const mapped = mapAutomationError(error, fallbackMessage);
 	fail(mapped.message, mapped.code);
@@ -160,28 +168,46 @@ export function registerDevtoolsCommands(program: Command): void {
 		.command("run-code")
 		.argument("<code>")
 		.argument("[windowIndex]")
+		.option("--allow-unsafe", "acknowledge raw renderer code execution")
 		.description("Run Playwright snippet with page/context/browser objects")
-		.action(async (code: string, rawWindowIndex?: string) => {
-			try {
-				await withRendererContext(rawWindowIndex, async ({ page, browser }) => {
-					const AsyncFunction = Object.getPrototypeOf(async () => undefined)
-						.constructor as new (
-						...args: string[]
-					) => (...args: unknown[]) => Promise<unknown>;
-					const fn = new AsyncFunction("page", "context", "browser", code);
-					const result = await fn(page, page.context(), browser);
-					const serialized =
-						typeof result === "string"
-							? result
-							: (JSON.stringify(result, null, 0) ?? String(result));
-					logInfo(
-						`Result: ${serialized.length > 240 ? `${serialized.slice(0, 240)}…(truncated)` : serialized}`,
+		.action(
+			async (
+				code: string,
+				rawWindowIndex?: string,
+				options?: UnsafeOptions,
+			) => {
+				try {
+					if (!hasUnsafePermission(options)) {
+						fail(
+							"Error: run-code is unsafe by design. Re-run with --allow-unsafe or set ECLI_ALLOW_UNSAFE=1.",
+							EXIT_CODE.INVALID_ARGS,
+						);
+						return;
+					}
+
+					await withRendererContext(
+						rawWindowIndex,
+						async ({ page, browser }) => {
+							const AsyncFunction = Object.getPrototypeOf(async () => undefined)
+								.constructor as new (
+								...args: string[]
+							) => (...args: unknown[]) => Promise<unknown>;
+							const fn = new AsyncFunction("page", "context", "browser", code);
+							const result = await fn(page, page.context(), browser);
+							const serialized =
+								typeof result === "string"
+									? result
+									: (JSON.stringify(result, null, 0) ?? String(result));
+							logInfo(
+								`Result: ${serialized.length > 240 ? `${serialized.slice(0, 240)}…(truncated)` : serialized}`,
+							);
+						},
 					);
-				});
-			} catch (error) {
-				handleError(error, "Error: Failed to run Playwright code.");
-			}
-		});
+				} catch (error) {
+					handleError(error, "Error: Failed to run Playwright code.");
+				}
+			},
+		);
 
 	program
 		.command("tracing-start")

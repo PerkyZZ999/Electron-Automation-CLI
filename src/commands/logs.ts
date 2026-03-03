@@ -45,6 +45,10 @@ export function registerLogsCommands(program: Command): void {
 				}
 
 				const selectedPath = paths[paths.length - 1];
+				if (!selectedPath) {
+					console.log("[]");
+					return;
+				}
 				const raw = await readFile(selectedPath, "utf8");
 				const lines = raw
 					.split("\n")

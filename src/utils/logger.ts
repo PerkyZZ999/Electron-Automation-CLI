@@ -23,6 +23,5 @@ export function logError(message: string): void {
 export function fail(message: string, code: number): void {
 	initTelemetry();
 	logError(message);
-	emitTelemetry("error", message, { exitCode: code });
 	process.exitCode = code;
 }

@@ -32,7 +32,7 @@ e-cli close
 2. Prefer `e-cli get-tree` and `.state/tree.txt` over raw HTML dumps.
 3. Prefer deterministic selectors (stable IDs, role/text patterns, test IDs).
 4. Treat `.state/*` outputs as authoritative artifacts for large payloads.
-5. Use `e-cli eval-main` only for Electron Main-process workflows.
+5. Use `e-cli eval-main` only for Electron Main-process workflows and acknowledge unsafe execution explicitly.
 
 ## Commands
 
@@ -57,7 +57,7 @@ e-cli uncheck <selector> [windowIndex]
 e-cli select <selector> <value> [windowIndex]
 e-cli resize <width> <height> [windowIndex]
 e-cli eval <expression> [windowIndex]
-e-cli eval-main "<jsCode>"
+e-cli eval-main "<jsCode>" [--allow-unsafe]
 ```
 
 ### Navigation
@@ -127,11 +127,15 @@ e-cli route-list
 e-cli unroute [pattern]
 e-cli console [minLevel]
 e-cli network
-e-cli run-code <code> [windowIndex]
+e-cli run-code <code> [windowIndex] [--allow-unsafe]
 e-cli tracing-start [filename]
 e-cli tracing-stop [filename]
 e-cli video-start [dirname]
 e-cli video-stop [filename]
+
+e-cli doctor [--json]
+e-cli logs [--tail <count>] [--json]
+e-cli logs-clear
 ```
 
 ## Electron-specific behavior
@@ -139,6 +143,7 @@ e-cli video-stop [filename]
 - Session is persisted at `.electron-session.json` in the current working directory.
 - Commands default to renderer `windowIndex=0` if not specified.
 - `eval-main` runs in Electron Main process; `eval` and `run-code` run in renderer context.
+- `eval-main` and `run-code` require `--allow-unsafe` or `ECLI_ALLOW_UNSAFE=1`.
 - `video-start`/`video-stop` currently use frame-capture parity mode (summary artifact), not encoded `webm` output.
 
 ## Artifacts
@@ -148,12 +153,15 @@ e-cli video-stop [filename]
 - Last action screenshot: `.state/last-action.png`
 - Console telemetry: `.state/console.jsonl`
 - Network telemetry: `.state/network.jsonl`
+- Evlog telemetry: `.state/logs/events.jsonl` (rotated `events-*.jsonl`)
 
 ## Failures and recovery
 
 - `Error: No active session...` → run `e-cli launch <appPath>`.
 - `Error: Electron process died...` → relaunch and retry.
 - `Error: Selector not found...` → refresh tree and retry with a valid selector.
+- `Error: eval-main is unsafe by design...` → rerun with `--allow-unsafe` (or set `ECLI_ALLOW_UNSAFE=1`).
+- `Error: run-code is unsafe by design...` → rerun with `--allow-unsafe` (or set `ECLI_ALLOW_UNSAFE=1`).
 
 ## Local invocation fallback
 

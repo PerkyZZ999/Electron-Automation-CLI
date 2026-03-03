@@ -5,9 +5,11 @@ Use `eval-main` when automation requires Electron Main process APIs.
 ## Basic usage
 
 ```bash
-e-cli eval-main "process.platform"
-e-cli eval-main "require('electron').app.getName()"
+e-cli eval-main "process.platform" --allow-unsafe
+e-cli eval-main "require('electron').app.getName()" --allow-unsafe
 ```
+
+Alternatively, set `ECLI_ALLOW_UNSAFE=1` in your shell.
 
 ## Typical scenarios
 
@@ -19,3 +21,4 @@ e-cli eval-main "require('electron').app.getName()"
 
 - `eval-main` runs privileged JavaScript; use only in trusted local projects.
 - Prefer renderer commands (`click`, `fill`, `eval`) for UI-only tasks.
+- `eval-main` is blocked by default unless `--allow-unsafe` (or env opt-in) is provided.

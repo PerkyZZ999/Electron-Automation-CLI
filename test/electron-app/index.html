@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Electron Mock Testing App</title>
+		<style>
+			:root {
+				color-scheme: dark;
+				font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				background: #0f172a;
+				color: #e2e8f0;
+			}
+
+			main {
+				max-width: 980px;
+				margin: 0 auto;
+				padding: 24px;
+				display: grid;
+				gap: 18px;
+			}
+
+			h1 {
+				margin: 0;
+				font-size: 1.8rem;
+			}
+
+			.panel {
+				background: #1e293b;
+				border: 1px solid #334155;
+				border-radius: 14px;
+				padding: 16px;
+			}
+
+			.panel h2 {
+				margin-top: 0;
+				font-size: 1.1rem;
+			}
+
+			label {
+				display: block;
+				margin-bottom: 6px;
+				font-size: 0.92rem;
+				color: #cbd5e1;
+			}
+
+			input,
+			select,
+			textarea,
+			button {
+				font: inherit;
+			}
+
+			input,
+			select,
+			textarea {
+				width: 100%;
+				padding: 10px;
+				border-radius: 10px;
+				border: 1px solid #475569;
+				background: #0b1220;
+				color: #e2e8f0;
+			}
+
+			textarea {
+				min-height: 86px;
+				resize: vertical;
+			}
+
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+				gap: 12px;
+			}
+
+			.actions {
+				display: flex;
+				gap: 10px;
+				flex-wrap: wrap;
+			}
+
+			button {
+				border: 0;
+				padding: 10px 14px;
+				border-radius: 10px;
+				font-weight: 600;
+				cursor: pointer;
+			}
+
+			.btn-primary {
+				background: #2563eb;
+				color: #fff;
+			}
+
+			.btn-alt {
+				background: #334155;
+				color: #e2e8f0;
+			}
+
+			.status {
+				padding: 10px;
+				border-radius: 10px;
+				background: #0b1220;
+				border: 1px solid #334155;
+				white-space: pre-wrap;
+			}
+
+			#hover-target {
+				padding: 10px;
+				border: 1px dashed #64748b;
+				border-radius: 10px;
+			}
+
+			#hover-target.is-hovered {
+				border-color: #22d3ee;
+				background: rgba(34, 211, 238, 0.15);
+			}
+
+			#drop-zone {
+				margin-top: 10px;
+				padding: 14px;
+				border-radius: 10px;
+				border: 1px dashed #64748b;
+			}
+
+			#drop-zone.is-dragover {
+				border-color: #f59e0b;
+				background: rgba(245, 158, 11, 0.12);
+			}
+
+			#modal {
+				position: fixed;
+				inset: 0;
+				display: none;
+				place-items: center;
+				background: rgba(2, 6, 23, 0.65);
+			}
+
+			#modal.is-open {
+				display: grid;
+			}
+
+			#modal-card {
+				width: min(420px, calc(100vw - 28px));
+				padding: 16px;
+				border-radius: 12px;
+				background: #1e293b;
+				border: 1px solid #334155;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<header class="panel">
+				<h1 id="page-title">Mock Electron Testing Page</h1>
+				<p id="page-subtitle">Deterministic controls for e-cli integration tests.</p>
+			</header>
+
+			<section class="panel" id="form-panel">
+				<h2>Form Controls</h2>
+				<div class="grid">
+					<div>
+						<label for="email-input">Email</label>
+						<input id="email-input" name="email" type="email" placeholder="user@example.com" />
+					</div>
+					<div>
+						<label for="password-input">Password</label>
+						<input id="password-input" name="password" type="password" placeholder="••••••••" />
+					</div>
+					<div>
+						<label for="role-select">Role</label>
+						<select id="role-select" name="role">
+							<option value="viewer">Viewer</option>
+							<option value="editor">Editor</option>
+							<option value="admin">Admin</option>
+						</select>
+					</div>
+					<div>
+						<label for="notes-input">Notes</label>
+						<textarea id="notes-input" name="notes" placeholder="Write test notes..."></textarea>
+					</div>
+				</div>
+				<div class="actions" style="margin-top: 10px">
+					<label><input id="remember-check" type="checkbox" /> Remember me</label>
+					<label><input id="notify-check" type="checkbox" checked /> Enable notifications</label>
+				</div>
+				<div class="actions" style="margin-top: 12px">
+					<button id="submit-btn" class="btn-primary" type="button">Submit Form</button>
+					<button id="reset-btn" class="btn-alt" type="button">Reset Form</button>
+				</div>
+				<div id="form-result" class="status" style="margin-top: 12px">No form submission yet.</div>
+			</section>
+
+			<section class="panel" id="interaction-panel">
+				<h2>Interactions</h2>
+				<div class="actions">
+					<button id="counter-btn" class="btn-primary" type="button">Counter</button>
+					<button id="dblclick-btn" class="btn-alt" type="button">Double Click Me</button>
+					<button id="open-modal-btn" class="btn-alt" type="button">Open Modal</button>
+					<button id="ping-main-btn" class="btn-alt" type="button">Ping Main Process</button>
+				</div>
+				<div id="counter-output" class="status" style="margin-top: 10px">counter=0, dblclicks=0</div>
+				<div id="hover-target" style="margin-top: 10px">Hover over this area.</div>
+				<div id="hover-output" class="status" style="margin-top: 10px">hovered=false</div>
+				<div id="keyboard-output" class="status" style="margin-top: 10px">last-key=(none)</div>
+				<div id="ping-output" class="status" style="margin-top: 10px">Awaiting main ping...</div>
+			</section>
+
+			<section class="panel" id="dragdrop-panel">
+				<h2>Drag and Drop</h2>
+				<div id="drag-source" draggable="true" class="status">Drag me</div>
+				<div id="drop-zone">Drop target zone</div>
+				<div id="drop-output" class="status" style="margin-top: 10px">dropped=false</div>
+			</section>
+		</main>
+
+		<div id="modal" aria-hidden="true">
+			<div id="modal-card">
+				<h2 id="modal-title">Modal Dialog</h2>
+				<p id="modal-text">This modal is used for click/visibility assertions.</p>
+				<div class="actions">
+					<button id="close-modal-btn" class="btn-primary" type="button">Close Modal</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="renderer.js"></script>
+	</body>
+</html>

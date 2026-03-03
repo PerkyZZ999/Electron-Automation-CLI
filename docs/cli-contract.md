@@ -29,11 +29,18 @@ This document defines the canonical command contract for `e-cli`.
 - Accessibility tree: `.state/tree.txt`
 - Last action screenshot: `.state/last-action.png`
 - Snapshot files: `.state/snapshot-*.txt` or explicit output path
+- Telemetry logs: `.state/logs/events.jsonl` and rotated `.state/logs/events-*.jsonl`
 
 ## Session Lifecycle Commands
 
 - `e-cli launch <appPath> [--headless]`
 - `e-cli close`
+
+## Local Operations Commands
+
+- `e-cli doctor [--json]`
+- `e-cli logs [--tail <count>] [--json]`
+- `e-cli logs-clear`
 
 ## Core Interaction Commands
 
@@ -77,7 +84,7 @@ This document defines the canonical command contract for `e-cli`.
 ## Evaluation Commands
 
 - `e-cli eval <expression> [windowIndex]` (renderer)
-- `e-cli eval-main "<jsCode>"` (main process)
+- `e-cli eval-main "<jsCode>" [--allow-unsafe]` (main process)
 
 ## Tab Commands
 
@@ -113,7 +120,7 @@ This document defines the canonical command contract for `e-cli`.
 - `e-cli unroute [pattern]`
 - `e-cli console [minLevel]`
 - `e-cli network`
-- `e-cli run-code <code>`
+- `e-cli run-code <code> [windowIndex] [--allow-unsafe]`
 - `e-cli tracing-start`
 - `e-cli tracing-stop`
 - `e-cli video-start`
@@ -127,11 +134,20 @@ This document defines the canonical command contract for `e-cli`.
 	- `video-start` enables per-command screenshot frame capture into `.state/video-frames-*`.
 	- `video-stop` writes a summary artifact (not an encoded `.mp4` file).
 
+## Unsafe Command Policy
+
+- `eval-main` and `run-code` are blocked unless one of these is provided:
+	- `--allow-unsafe`
+	- `ECLI_ALLOW_UNSAFE=1`
+- When blocked, command exits with code `2` and a remediation hint.
+
 ## Standard Error Messages
 
 - `Error: No active session. Run e-cli launch <appPath> first.`
 - `Error: Electron process died. Please run e-cli launch again.`
 - `Error: Selector not found: <selector>`
+- `Error: eval-main is unsafe by design. Re-run with --allow-unsafe or set ECLI_ALLOW_UNSAFE=1.`
+- `Error: run-code is unsafe by design. Re-run with --allow-unsafe or set ECLI_ALLOW_UNSAFE=1.`
 
 ## Linux/Arch Headless Behavior
 

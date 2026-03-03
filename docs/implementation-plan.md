@@ -16,18 +16,21 @@ Last updated: 2026-03-02
    - ⏳ Broader E2E validation pending environment dependencies (`xvfb-run`, desktop libs).
 - ✅ **Phase 6: AI Agent Skill Integration** completed (`.skills/playwright-electron-cli/SKILL.md` added).
 - ✅ **Phase 6B: Skill Quality Refinement & Reference Modules** completed (Playwright-CLI-inspired SKILL structure, frontmatter metadata, and task-specific `references/` docs).
-- 🔄 **Phase 7: Command Surface Expansion (Playwright-CLI Parity for Electron)** in progress.
+- ✅ **Phase 7: Command Surface Expansion (Playwright-CLI Parity for Electron)** completed.
    - ✅ Command matrix and parity scope aligned in source-of-truth docs.
    - ✅ Batch 1 implemented (navigation, keyboard, mouse, artifact, storage, and tab command families).
-   - 🔄 Batch 1 runtime hardening in progress (environment-specific launch and broader E2E verification).
    - ✅ Batch 2 implemented (`route`, `route-list`, `unroute`, `console`, `network`, `run-code`, `tracing-start`, `tracing-stop`, `video-start`, `video-stop`).
-   - ⏳ Batch 2 deep E2E validation pending full desktop/headless environment dependencies.
-- ⏳ **Phase 8: Build, Packaging & Distribution** pending.
+- 🔄 **Phase 8: Build, Packaging & Distribution** in progress.
    - ✅ Upgraded fixture app to a real multi-file Electron app under `test/fixtures/basic-electron-app/`.
    - ✅ Added real CLI E2E integration test `test/cli.e2e.test.ts` (launch/get-tree/fill/select/check/click/eval/close workflow).
    - ✅ Added dedicated real-app E2E script: `bun run test:e2e`.
+   - ✅ Added local production scripts: `build:binary`, `install:local`, `uninstall:local`, `smoke:prod`.
    - ✅ Added state-manager tests in `test/state.test.ts`.
-- ⏳ **Phase 9: Edge Case Hardening** pending.
+- ✅ **Phase 9: Edge Case Hardening** completed.
+   - ✅ Added explicit unsafe opt-in guards for `eval-main` and `run-code` (`--allow-unsafe` or `ECLI_ALLOW_UNSAFE=1`).
+   - ✅ Added local preflight diagnostics command (`doctor`) with JSON and text modes.
+   - ✅ Added local telemetry inspection commands (`logs`, `logs-clear`).
+   - ✅ Integrated Evlog-based structured telemetry with local rotating JSONL drain.
 
 ## Phase 1: Project Initialization & Setup
 **Goal:** Scaffold a robust Bun-powered CLI project environment with the necessary dependencies.
@@ -144,7 +147,9 @@ Last updated: 2026-03-02
 2. **Testing:**
    - Create a real Electron app fixture inside `test/fixtures/` (real BrowserWindow + renderer HTML/JS interactions).
    - Write E2E tests using `bun test` that launch the real fixture app and exercise CLI workflows end-to-end.
-3. **Release:** Configure GitHub Actions for continuous integration and automated binary releases.
+3. **Local Distribution:**
+   - Add install/uninstall scripts to place/remove `e-cli` in `~/.local/bin`.
+   - Add a smoke script that validates the compiled binary with `doctor --json`.
 
 ## Phase 9: Edge Case Hardening
 **Goal:** Ensure CLI stability during unexpected events.
@@ -152,3 +157,5 @@ Last updated: 2026-03-02
 - **Stale Sessions:** Detect if the `pid` is running but the app has crashed, outputting explicit instructions (e.g., "Please run e-cli launch again").
 - **Multi-Window Apps:** Implement flags or array indices for `get-tree` and action commands to target secondary windows.
 - **Timeout Management:** Expose `--timeout` flags for operations that might hang during complex test scenarios.
+- **Unsafe Execution Controls:** Require explicit opt-in for raw code execution (`eval-main`, `run-code`).
+- **Operational Diagnostics:** Provide `doctor` and local telemetry log inspection commands for environment triage.

@@ -5,6 +5,7 @@
 *   **Automation Engine:** `playwright` (specifically `require('playwright')._electron`). [stephenhaney](https://stephenhaney.com/2024/playwright-on-fly-io-with-bun/)
 *   **CLI Framework (v1 decision):** `commander.js` for structured subcommands and predictable help output.
 *   **File System:** Native Bun APIs (`Bun.file()`, `Bun.write()`) for persistent state and logging.
+*   **Observability:** `evlog` with local drain pipeline (`.state/logs/*.jsonl`) for structured event telemetry.
 
 ### 2. System Architecture
 
@@ -29,7 +30,10 @@ When `e-cli launch` is executed, the CLI will:
 *   `e-cli get-tree [windowIndex]`: Extracts the accessibility tree, saves to `.state/tree.txt`, outputs file path only.
 *   `e-cli click <selector> [windowIndex]`: Connects via CDP, clicks the element, triggers an automatic screenshot to `.state/last-action.png`.
 *   `e-cli fill <selector> <text> [windowIndex]`: Inputs text into targeted element.
-*   `e-cli eval-main "<js-code>"`: Attaches to the Electron Main process and runs `electronApp.evaluate()`.
+*   `e-cli eval-main "<js-code>" [--allow-unsafe]`: Attaches to the Electron Main process and runs `electronApp.evaluate()`.
+*   `e-cli doctor [--json]`: Runs local preflight checks (runtime, dependencies, display/headless readiness, binary presence, telemetry init).
+*   `e-cli logs [--tail <count>] [--json]`: Reads Evlog telemetry from `.state/logs`.
+*   `e-cli logs-clear`: Clears local telemetry artifacts in `.state/logs`.
 
 #### 2.3 Expanded Command Families (Parity Track)
 The CLI must support broad command families inspired by Playwright-CLI while preserving Electron-first semantics.
@@ -42,6 +46,7 @@ The CLI must support broad command families inspired by Playwright-CLI while pre
 *   **Tabs/windows:** `tab-list`, `tab-new`, `tab-close`, `tab-select`.
 *   **State/storage:** `state-save`, `state-load`, cookies/localStorage/sessionStorage command families.
 *   **Network/diagnostics:** `route`, `route-list`, `unroute`, `console`, `network`, `run-code`, `tracing-*`, `video-*`.
+*   **Local operations:** `doctor`, `logs`, `logs-clear`.
 
 Electron adaptation notes:
 
@@ -49,18 +54,33 @@ Electron adaptation notes:
 *   Browser-profile semantics are replaced by project-local Electron session state in `.electron-session.json`.
 *   Heavy command outputs must be persisted under `.state/` and returned as paths.
 
+Privileged command policy:
+
+*   `eval-main` and `run-code` require explicit opt-in via `--allow-unsafe` or `ECLI_ALLOW_UNSAFE=1`.
+
 #### 2.4 CLI Output Contract (Normative)
 *   Heavy output commands return file paths rather than raw payloads.
 *   `e-cli get-tree` prints only the generated text file path on success.
 *   `e-cli click` and `e-cli fill` print concise success text plus `.state/last-action.png` path.
 *   Errors are single-line, actionable, and should include recovery instructions when possible.
+*   `doctor --json` returns a machine-readable check array and exits non-zero when failures exist.
+
+#### 2.5 Observability Pipeline
+
+Telemetry is emitted through Evlog and drained locally:
+
+1. `initLogger()` is configured once with service/environment metadata.
+2. A drain pipeline batches and retries events.
+3. Events are written to `.state/logs/events.jsonl`.
+4. Size-based rotation archives to `.state/logs/events-<timestamp>.jsonl`.
+5. `logs` and `logs-clear` provide operator-facing log inspection/cleanup.
 
 ### 3. Implementation Plan (Bun + TS)
 
 #### 3.1 Setup
 ```bash
 bun init
-bun add playwright commander
+bun add playwright commander evlog
 bun add -d @types/bun typescript electron
 bunx playwright install-deps # Crucial for Arch Linux Chromium dependencies
 ```
@@ -112,4 +132,4 @@ Drift-control rule: whenever command signatures or artifact semantics change, up
 *   **Electron Bundling:** When using Bun, ensure that `bun build` (if compiling the CLI into a single binary) marks `electron` and `playwright` as external dependencies (`--external playwright`) so it doesn't attempt to bundle browser binaries. [stephenhaney](https://stephenhaney.com/2024/playwright-on-fly-io-with-bun/)
 *   **Main Process Disconnects:** If the Electron app crashes, the `wsEndpoint` becomes invalid. Every command must wrap the CDP connection in a `try/catch` and output a clean error to the AI: `"Error: Electron process died. Please run e-cli launch again."`
 *   **Context Isolation:** Ensure the AI knows how to handle multiple Electron windows (e.g., if the app spawns a secondary window for settings). The CLI should support targeting `firstWindow()` by default, with flags for window arrays.
-*   **Trust Boundary:** `eval-main` executes arbitrary JavaScript in the Electron Main process and must be treated as privileged; this command is intended only for trusted local automation workflows.
+*   **Trust Boundary:** `eval-main` and `run-code` execute arbitrary JavaScript and are privileged; require explicit unsafe opt-in and use only for trusted local workflows.

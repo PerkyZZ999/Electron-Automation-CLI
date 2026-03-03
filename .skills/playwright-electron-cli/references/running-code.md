@@ -9,8 +9,10 @@ e-cli run-code "
 await page.context().grantPermissions(['geolocation']);
 const title = await page.title();
 return { title, url: page.url() };
-"
+" --allow-unsafe
 ```
+
+Alternatively, set `ECLI_ALLOW_UNSAFE=1` in your shell.
 
 ## Common examples
 
@@ -42,3 +44,4 @@ return await page.evaluate(() => ({
 - Return JSON-serializable objects for clearer output.
 - Prefer dedicated commands (`click`, `fill`, `route`, `tracing-*`) first, then `run-code`.
 - `run-code` receives `page`, `context`, and `browser` as in-scope variables; pass statement bodies, not function wrappers.
+- `run-code` is privileged and blocked by default unless unsafe opt-in is present.
