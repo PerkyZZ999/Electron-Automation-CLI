@@ -29,8 +29,8 @@ This folder is the canonical source of truth for `Electron-Automation-CLI`.
    - Maps PRD requirements to technical realization, implementation phases, and verification.
 
 7. **AI Skill Package (Operational Contract for Agents)**
-   - `../.skills/playwright-electron-cli/SKILL.md`
-   - `../.skills/playwright-electron-cli/references/*.md`
+   - `../.skills/electron-automation-cli/SKILL.md`
+   - `../.skills/electron-automation-cli/references/*.md`
    - Defines AI-facing operational workflows, command-family usage, and task-specific guidance.
 
 8. **Operational Guides**
@@ -74,4 +74,4 @@ AI skill files are derived operational guidance and must mirror command/behavior
 - Any change to command syntax or output behavior must update `cli-contract.md` first.
 - Any change to architecture assumptions must update `project-architecture.md` and `technical-specifications.md` in the same change set.
 - Any new feature request should be reflected in `prd.md` before implementation begins.
-- Any command contract change must also update `.skills/playwright-electron-cli/SKILL.md` and any impacted reference file under `.skills/playwright-electron-cli/references/` in the same change set.
+- Any command contract change must also update `.skills/electron-automation-cli/SKILL.md` and any impacted reference file under `.skills/electron-automation-cli/references/` in the same change set.

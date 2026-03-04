@@ -1,5 +1,5 @@
 ---
-name: playwright-electron-cli
+name: electron-automation-cli
 description: Automates Electron desktop apps through a token-efficient CLI for UI testing, stateful workflows, diagnostics, and artifact capture. Use whenever the user needs to launch an Electron app, inspect UI state, click/fill/type in renderer windows, run main-process code, capture traces/screenshots, or debug request/console/network behavior.
 ---
 

@@ -21,8 +21,8 @@ The CLI acts as a "Stateful Proxy Pipeline." It bridges ephemeral, stateless ter
    - Responsible for intercepting heavy payloads (like full accessibility trees, DOM structures, and binary screenshots) and safely saving them to `.state/` directories while passing only the absolute paths back up to the CLI stdout.
 
 5. **AI Skill Package:**
-     - `.skills/playwright-electron-cli/SKILL.md` captures default operational workflow and command families.
-     - `.skills/playwright-electron-cli/references/` stores workflow-specific guidance so only relevant material needs to be loaded.
+     - `.skills/electron-automation-cli/SKILL.md` captures default operational workflow and command families.
+     - `.skills/electron-automation-cli/references/` stores workflow-specific guidance so only relevant material needs to be loaded.
 
 ---
 
@@ -97,7 +97,7 @@ Electron-Automation-CLI/
 │   ├── README.md             # Source-of-truth documentation index
 │   └── cli-contract.md       # Canonical command and output contract
 ├── .skills/
-│   └── playwright-electron-cli/
+│   └── electron-automation-cli/
 │       ├── SKILL.md          # Agent prompt definitions for discovering/using the tool
 │       └── references/
 │           ├── request-mocking.md

@@ -11,8 +11,8 @@ This document defines the canonical command contract for `e-cli`.
 
 ## Skill Alignment
 
-- `.skills/playwright-electron-cli/SKILL.md` must mirror this command contract for signatures and workflow ordering.
-- Task-focused details must live under `.skills/playwright-electron-cli/references/` (request mocking, running code, session management, storage state, tracing, video capture, main process).
+- `.skills/electron-automation-cli/SKILL.md` must mirror this command contract for signatures and workflow ordering.
+- Task-focused details must live under `.skills/electron-automation-cli/references/` (request mocking, running code, session management, storage state, tracing, video capture, main process).
 - Any command addition/removal/change in this file requires same-change updates to impacted skill docs.
 
 ## Exit Codes

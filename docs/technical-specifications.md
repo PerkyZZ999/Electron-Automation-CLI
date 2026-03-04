@@ -122,7 +122,7 @@ function rerunWithXvfb() {
 ```
 
 #### 3.3 CLI Skills Integration (`SKILL.md`)
-To make this discoverable by AI agents, the project includes `.skills/playwright-electron-cli/SKILL.md` plus task-focused references.
+To make this discoverable by AI agents, the project includes `.skills/electron-automation-cli/SKILL.md` plus task-focused references.
 
 Skill package design requirements:
 
@@ -132,7 +132,7 @@ Skill package design requirements:
   - command-family matrix,
   - Electron-specific behavior,
   - artifact and recovery contract.
-3. Move deep workflow guidance into `.skills/playwright-electron-cli/references/` to reduce prompt bloat.
+3. Move deep workflow guidance into `.skills/electron-automation-cli/references/` to reduce prompt bloat.
 
 Current reference modules:
 

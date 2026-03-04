@@ -14,7 +14,7 @@ Last updated: 2026-03-02
    - ✅ `launch`, `close`, `get-tree`, `click`, `fill` implemented.
    - ✅ `eval-main` implemented via persistent main-process socket bridge.
    - ⏳ Broader E2E validation pending environment dependencies (`xvfb-run`, desktop libs).
-- ✅ **Phase 6: AI Agent Skill Integration** completed (`.skills/playwright-electron-cli/SKILL.md` added).
+- ✅ **Phase 6: AI Agent Skill Integration** completed (`.skills/electron-automation-cli/SKILL.md` added).
 - ✅ **Phase 6B: Skill Quality Refinement & Reference Modules** completed (Playwright-CLI-inspired SKILL structure, frontmatter metadata, and task-specific `references/` docs).
 - ✅ **Phase 7: Command Surface Expansion (Playwright-CLI Parity for Electron)** completed.
    - ✅ Command matrix and parity scope aligned in source-of-truth docs.
@@ -103,7 +103,7 @@ Last updated: 2026-03-02
 ## Phase 6: AI Agent Skill Integration
 **Goal:** Package the tool as a natively recognizable skill for AI coding agents.
 
-1. **Create Skill Definition (`.skills/playwright-electron-cli/SKILL.md`):**
+1. **Create Skill Definition (`.skills/electron-automation-cli/SKILL.md`):**
    - Document the `<description>`, `<usage>`, and strict rules for the AI (e.g., "Always start by running `launch`", "Never ask for raw HTML, always use `get-tree`").
    - Define exact command syntax and expected outputs.
 2. **Compliance Verification:** Ensure the skill definition adheres to `agentskills.io` standards.
@@ -115,7 +115,7 @@ Last updated: 2026-03-02
    - Convert `SKILL.md` to frontmatter + sectional markdown format.
    - Add quickstart workflows and command-family grouping for better discoverability.
 2. **Reference Decomposition:**
-   - Add `.skills/playwright-electron-cli/references/` and split advanced guidance by workflow (`request-mocking`, `running-code`, `session-management`, `storage-state`, `tracing`, `video-recording`, `main-process`).
+   - Add `.skills/electron-automation-cli/references/` and split advanced guidance by workflow (`request-mocking`, `running-code`, `session-management`, `storage-state`, `tracing`, `video-recording`, `main-process`).
 3. **Drift Prevention:**
    - Require command-surface and artifact behavior updates in both `docs/cli-contract.md` and skill references during the same change set.
 
